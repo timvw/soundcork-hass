@@ -10,10 +10,20 @@ Home Assistant integration for [SoundCork](https://github.com/timvw/soundcork) �
 
 All speaker communication is **proxied through the SoundCork server** — Home Assistant never needs direct LAN access to speakers.
 
+## Screenshots
+
+| Now Playing | Presets |
+|:-----------:|:-------:|
+| ![Now Playing](docs/screenshots/nowplaying.png) | ![Presets](docs/screenshots/presets.png) |
+
+| Remote | Recents |
+|:------:|:-------:|
+| ![Remote](docs/screenshots/remote.png) | ![Recents](docs/screenshots/recents.png) |
+
 ## Prerequisites
 
 - [SoundCork](https://github.com/timvw/soundcork) running with speakers registered in the webui
-- SoundCork version with `/api/v1` router (branch `ha-integration` or later)
+- SoundCork with `/api/v1` router (included in main branch)
 - Home Assistant 2024.1+
 
 ## Installation
@@ -54,26 +64,51 @@ The integration validates the connection by fetching the speaker list and create
 
 The card is auto-registered when the integration loads — no manual resource step needed.
 
-Add to a dashboard:
+### Adding the card to a dashboard
+
+HA 2024+ uses a sections-based dashboard layout. To add the SoundCork card, you need to edit the dashboard YAML directly:
+
+1. Open the dashboard you want to add the card to
+2. Click the **pencil icon** (top right) to enter edit mode
+3. Click the **three dots** on a section → **Edit YAML** (or add a new section first)
+4. Add the card to the `cards` list:
+
+```yaml
+type: grid
+cards:
+  - type: heading
+    heading: SoundCork
+  - type: custom:soundcork-card
+    soundcork_url: https://your-soundcork-server.example.com
+    speakers:
+      - media_player.bose_woonkamer
+```
+
+Replace `soundcork_url` with your SoundCork server's **browser-reachable** URL, and `speakers` with your actual entity IDs (check **Settings → Devices & Services → SoundCork** for the entity names).
+
+> **Important**: The `soundcork_url` must be reachable from your **browser**, not the HA pod. If HA and SoundCork run on the same k8s cluster, the integration uses the in-cluster URL, but the card needs the external URL.
+
+### Multiple speakers
+
+When multiple speakers are configured, the card shows speaker selector chips. Tap to toggle which speakers receive commands (play, volume, power). Multi-room playback uses the Bose zone API automatically.
 
 ```yaml
 type: custom:soundcork-card
-soundcork_url: https://soundcork.apps.timvw.be
+soundcork_url: https://soundcork.apps.example.com
 speakers:
-  - media_player.soundcork_A0F6FD743B41
-  - media_player.soundcork_587A6274B5C4
+  - media_player.bose_woonkamer
+  - media_player.bose_keuken
+  - media_player.bose_slaapkamer
 ```
 
-> **Note**: The `soundcork_url` in the card config must be reachable from your **browser** (not the HA pod). Use the external/LAN URL, not the k8s in-cluster URL.
+### Card tabs
 
-### Card Features
-
-| Tab | Features |
-|-----|----------|
-| **Now Playing** | Album art, track/artist/album, source badge, play/pause/prev/next, per-speaker volume + mute, speaker selector chips |
-| **Presets** | 2×3 grid with artwork, click to play, multi-room zone support, inline preset editor (TuneIn search, internet radio URL, delete) |
-| **Remote** | Button grid: Power, AUX, Presets 1-6, Mute, Vol ±, Play/Pause, Prev, Next |
-| **Recents** | Recently played items with thumbnails, source badges, play buttons |
+| Tab | What it does |
+|-----|-------------|
+| **Now Playing** | Album art, track/artist info, source badge (TuneIn/Spotify/Radio), playback controls (prev/play-pause/next), per-speaker volume slider + mute |
+| **Presets** | 2×3 grid of saved presets with station artwork. Tap to play. Manage buttons to edit presets (TuneIn search, internet radio URL, delete) |
+| **Remote** | Button grid matching the SoundCork webui: Power, AUX, Presets 1-6, Mute, Vol ±, Play/Pause, Prev, Next |
+| **Recents** | Recently played items with thumbnails and play buttons |
 
 ## Architecture
 
@@ -114,7 +149,7 @@ Extra attributes: `ip_address`, `device_id`, `source_type`, `preset_N_name`, `pr
 
 ## API Reference
 
-The SoundCork server's `/api/v1` router exposes these endpoints (see [soundcork docs](https://github.com/timvw/soundcork/blob/ha-integration/docs/home-assistant.md) for details):
+The SoundCork server's `/api/v1` router exposes these endpoints (see [soundcork docs](https://github.com/timvw/soundcork/blob/main/docs/home-assistant.md) for details):
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
