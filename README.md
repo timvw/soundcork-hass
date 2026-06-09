@@ -1,5 +1,7 @@
 # SoundCork for Home Assistant
 
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=timvw&repository=soundcork-hass&category=integration)
+
 Home Assistant integration for [SoundCork](https://github.com/timvw/soundcork) — control your Bose SoundTouch speakers after the Bose cloud shutdown.
 
 ## What it does
