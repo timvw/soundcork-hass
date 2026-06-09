@@ -5,6 +5,7 @@ import logging
 from pathlib import Path
 
 from homeassistant.components.frontend import add_extra_js_url
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
@@ -21,7 +22,9 @@ CARD_FILE = str(Path(__file__).parent / "www" / "soundcork-card.js")
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     """Register the lovelace card as a frontend resource."""
-    hass.http.register_static_path(CARD_PATH, CARD_FILE, cache_headers=True)
+    await hass.http.async_register_static_paths(
+        [StaticPathConfig(CARD_PATH, CARD_FILE, True)]
+    )
     add_extra_js_url(hass, CARD_PATH)
     return True
 
