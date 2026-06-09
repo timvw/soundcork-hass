@@ -1545,3 +1545,20 @@ window.customCards.push({
   description: "Control Bose SoundTouch speakers via SoundCork",
   preview: true,
 });
+
+// Late-load fix: if Lovelace rendered before this script loaded, hui-card
+// created error placeholders for our unknown element. Walk the shadow DOM
+// tree to find them and dispatch ll-rebuild so hui-card re-creates the card.
+setTimeout(() => {
+  const rebuild = (root) => {
+    root.querySelectorAll("hui-error-card").forEach((el) => {
+      el.dispatchEvent(
+        new Event("ll-rebuild", { bubbles: true, composed: true })
+      );
+    });
+    root.querySelectorAll("*").forEach((el) => {
+      if (el.shadowRoot) rebuild(el.shadowRoot);
+    });
+  };
+  rebuild(document.body);
+}, 500);
